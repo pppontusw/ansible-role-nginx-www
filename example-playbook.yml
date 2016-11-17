@@ -1,0 +1,25 @@
+#example-playbook.yml
+- name: example.com
+  hosts: all
+  vars:
+    nginx_www_virtual_sites: 
+      - { site_id: 'example.com', index: 'index.html' }
+  roles:
+    - nginx-www
+  tasks:
+    - file: 
+        path: /www/example.com 
+        state: directory
+        owner: "{{nginx_user}}"
+        group: "{{nginx_group}}"
+        mode: 0755
+        setype: httpd_config_t
+      become: yes
+    - copy:
+        src: ../files/index.html
+        dest: /www/example.com/index.html
+        owner: "{{nginx_user}}"
+        group: "{{nginx_group}}"
+        mode: 0755
+        setype: httpd_config_t
+      become: yes

@@ -1,0 +1,87 @@
+- name: copy nginx.conf
+  template:
+    src: "../templates/{{ item }}.j2"
+    dest: "{{nginx_path}}/{{ item }}"
+    owner: "{{nginx_user}}"
+    group: "{{nginx_group}}"
+    mode: 0644
+  with_items:
+    - nginx.conf
+  notify:
+    - restart nginx
+
+- name: create sites folder
+  file: 
+    path: "{{nginx_path}}/sites-enabled" 
+    state: directory
+    owner: "{{nginx_user}}"
+    group: "{{nginx_group}}"
+    mode: 0644
+
+- name: create sites folder
+  file: 
+    path: "{{nginx_path}}/sites-available"
+    state: directory
+    owner: "{{nginx_user}}"
+    group: "{{nginx_group}}"
+    mode: 0644
+
+- name: create www folder
+  file: 
+    path: "/www" 
+    state: directory
+    owner: "{{nginx_user}}"
+    group: "{{nginx_group}}"
+    mode: 0755
+    setype: httpd_config_t
+
+- name: delete old default file
+  file: 
+    path: "{{nginx_path}}/sites-enabled/default" 
+    state: absent
+
+- name: copy ssl virtual sites
+  template:
+    src: "../templates/virtualsite-ssl.j2"
+    dest: "{{nginx_path}}/sites-available/{{ item.site_id }}"
+    owner: "{{nginx_user}}"
+    group: "{{nginx_group}}"
+    mode: 0644
+  with_items: "{{nginx_www_ssl_virtual_sites|default([])}}"
+  notify:
+    - restart nginx
+
+- name: create ssl symlinks
+  file: 
+    src: "{{nginx_path}}/sites-available/{{ item.site_id }}" 
+    dest: "{{nginx_path}}/sites-enabled/{{ item.site_id }}" 
+    state: link
+    owner: "{{nginx_user}}"
+    group: "{{nginx_group}}"
+    mode: 0644
+  with_items: "{{nginx_www_ssl_virtual_sites|default([])}}"
+  notify:
+    - restart nginx
+
+- name: copy non-ssl virtual sites
+  template:
+    src: "../templates/virtualsite.j2"
+    dest: "{{nginx_path}}/sites-available/{{ item.site_id }}"
+    owner: "{{nginx_user}}"
+    group: "{{nginx_group}}"
+    mode: 0644
+  with_items: "{{nginx_www_virtual_sites|default([])}}"
+  notify:
+    - restart nginx
+
+- name: create non-ssl symlinks
+  file: 
+    src: "{{nginx_path}}/sites-available/{{ item.site_id }}" 
+    dest: "{{nginx_path}}/sites-enabled/{{ item.site_id }}" 
+    state: link
+    owner: "{{nginx_user}}"
+    group: "{{nginx_group}}"
+    mode: 0644
+  with_items: "{{nginx_www_virtual_sites|default([])}}"
+  notify:
+    - restart nginx

@@ -1,0 +1,35 @@
+- name: install EPEL repo
+  yum:
+    name: "{{ epel_repo_url }}"
+    state: present
+  register: result
+  until: '"failed" not in result'
+  retries: 5
+  delay: 10
+
+- name: import EPEL key
+  rpm_key:
+    key: "{{ epel_repo_gpg_key_url }}"
+    state: present
+
+- name: install nginx
+  yum: name={{nginx_pkg_name}} state=present enablerepo=epel
+
+- name: enable firewalld service
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+  tags: firewalld
+
+- name: configure firewalld
+  firewalld: "port={{item.http_port|default(80)}}/tcp permanent=true state=enabled"
+  notify: restart firewalld
+  with_items: "{{nginx_www_ssl_virtual_sites|default([]) + nginx_www_virtual_sites|default([])}}"
+  tags: firewalld
+
+- name: configure firewalld
+  firewalld: "port={{item.https_port|default(443)}}/tcp permanent=true state=enabled"
+  notify: restart firewalld
+  with_items: "{{nginx_www_ssl_virtual_sites|default([])}}"
+  tags: firewalld

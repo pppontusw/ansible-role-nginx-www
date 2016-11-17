@@ -1,0 +1,34 @@
+# {{ ansible_managed }}
+server {
+{% if item.custom_http_block is not defined %}
+        {% if item.server_names is defined %}
+        server_name {{item.server_names}};
+                {% if item.http_port is defined %}
+        listen {{item.http_port}};
+                {% else %}
+        listen 80;
+                {% endif %}
+        {% else %}
+                {% if item.http_port is defined %}
+        listen {{item.http_port}} default_server;
+                {% else %}
+        listen 80 default_server;
+                {% endif %}
+        {% endif %}
+
+        root /www/{{item.site_id}};
+        index {{item.index}};
+        {% if item.letsencrypt is defined and item.letsencrypt %}
+        location '/.well-known/acme-challenge' {
+                default_type "text/plain";
+                root        /tmp/letsencrypt-auto;
+        }
+        {% endif %}
+        location / {
+                try_files $uri $uri/ =404;
+        }
+
+{% elif item.custom_http_block is defined %}
+        {{ item.custom_http_block }}
+{% endif %}
+}
