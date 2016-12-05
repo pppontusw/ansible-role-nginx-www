@@ -11,4 +11,5 @@ before_script:
   - ansible-galaxy install -r tests/requirements.yml
 
 script:
-  - ansible-playboook -i inventory tests/test.yml
+  - ansible-playboook -i inventory tests/test.yml --syntax-check
+  - ansible-playboook -i inventory tests/test.yml --connection=local
