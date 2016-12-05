@@ -2,7 +2,10 @@
 
 ## With Vagrant
 
-```vagrant provision```
+```
+ansible-galaxy install -r requirements.yml
+vagrant up
+```
 
 ## With Travis
 
