@@ -1,5 +1,7 @@
 # Nginx HTTP & HTTPS static web server
 
+[![Build Status](https://travis-ci.org/Universum/ansible-role-nginx-www.svg?branch=master)](https://travis-ci.org/Universum/ansible-role-nginx-www)
+
 ## What does it do?
 
 1. Installs Nginx
