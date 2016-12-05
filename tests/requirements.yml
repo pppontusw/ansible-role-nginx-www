@@ -1,0 +1,3 @@
+- src: https://github.com/Universum/ansible-role-nginx-www.git
+  version: master
+  name: nginx-www

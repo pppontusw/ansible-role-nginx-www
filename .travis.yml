@@ -1,0 +1,17 @@
+sudo: required
+
+language: python
+python:
+  - "2.7"
+
+install:
+  - pip install ansible
+  - "printf '[defaults]\\nroles_path = ../' > ansible.cfg"
+
+before_script:
+  - echo localhost > inventory
+  - ansible-galaxy install -r tests/requirements.yml
+
+script:
+  - ansible-playbook -i inventory tests/test.yml --syntax-check
+  - ansible-playbook -i inventory tests/test.yml --connection=local
