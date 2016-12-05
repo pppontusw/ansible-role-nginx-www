@@ -1,0 +1,14 @@
+language: python
+python:
+  - "2.7"
+
+install:
+  - pip install ansible==1.9.1
+  - "printf '[defaults]\\nroles_path = ../' > ansible.cfg"
+
+before_script:
+  - echo localhost > inventory
+  - ansible-galaxy install -r tests/requirements.yml
+
+script:
+  - ansible-playboook -i inventory tests/test.yml
